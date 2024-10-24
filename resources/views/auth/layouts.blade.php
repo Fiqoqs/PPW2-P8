@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Laravel 10 Custom User Registration & Login Tutorial - AllPHPTricks.com</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet" 
-          integrity="sha384-rbsA2VXlKQhxqqxI7rPcCqaG04Mq0MB8zvIR1p0MdI6DLvZ2uEK2kadq2FGUCG6s" 
-          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-light">
