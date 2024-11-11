@@ -1,5 +1,5 @@
 function toggleEditForm(id) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
         var form = document.getElementById('form-edit-' + i + id);
         if (form.style.display === 'none' || form.style.display === '') {
             form.style.display = 'table-cell';

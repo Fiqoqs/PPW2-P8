@@ -1,61 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <title>List Buku</title>
-</head>
+@section('content')
 <body class="p-4">
     @if(Session::has('pesan'))
-        <div class="alert alert-success">
-            {{ Session::get('pesan') }}
-        </div>
+    <div class="alert alert-success">{{Session::get('pesan')}}</div>
     @endif
-
-    <form action="{{ route('buku.search') }}" method="get">@csrf
-        <input type="text" name="kata" class="form-control" placeholder="Cari ..." 
-            style="width: 30%; display: inline; margin-top: 10px; margin-bottom: 10px; float: left;">
-    </form>
-
-    <a href="{{ route('buku.create') }}" class="btn btn-primary float-end">Tambah Buku</a>
+    <nav class="d-flex justify-content-end w-100 my-4 gap-4">
+        <form action="{{ route('buku.search') }}" method="get">@csrf
+            <input type="text" name="kata" class="form-control" placeholder="Cari ... ">
+        </form>
+        @if(Auth::check() && Auth::user()->level=='admin')
+        <a href="{{ route('buku.create') }}" class="btn btn-primary">Tambah Buku</a>
+        @endif
+    </nav>
+    
+    <!-- Table Section -->
     <table class="table table-stripped">
         <thead>
             <tr>
                 <th>id</th>
+                <th>Thumbnail</th>
                 <th>Judul Buku</th>
                 <th>Penulis</th>
                 <th>Harga</th>
                 <th>Tanggal Terbit</th>
+                @if(Auth::check() && Auth::user()->level=='admin')
                 <th>Aksi</th>
                 <th>Edit</th>
+                @endif
             </tr>
         </thead>
         <tbody>
-
             @foreach($data_buku as $buku)
             <tr>
-                <div>
-                    <td>{{ $buku->id}}</td>
-                    <td id="baris-1{{ $buku->id }}">{{ $buku->judul }}</td>
-                    <td id="baris-2{{ $buku->id }}">{{ $buku->penulis }}</td>
-                    <td id="baris-3{{ $buku->id }}">{{ "Rp. ".number_format($buku->harga, 2, ',','.') }}</td>
-                    <td id="baris-4{{ $buku->id }}">{{ $buku->tgl_terbit->format('d/m/Y') }}</td>
-                </div>
+                <td>{{ $buku->id}}</td>
+                <td>
+                    @if ( $buku->filepath )
+                        <div class="relative h-8 w-8">
+                            <img class="h-full rounded-full object-cover object-center"
+                                src="{{ asset($buku->filepath) }}"
+                                style="max-height: 100px;"
+                                alt="">
+                        </div>
+                    @endif
+                </td>
+                <td>{{ $buku->judul }}</td>
+                <td>{{ $buku->penulis }}</td>
+                <td>{{ "Rp. ".number_format($buku->harga, 2, ',','.') }}</td>
+                <td>{{ \Carbon\Carbon::parse($buku->tgl_terbit)->format('d/m/Y') }}</td>
 
-                <form action="{{ route ('buku.update', $buku->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="id" value="{{ $buku->id }}">
-                    <td id="form-edit-0{{ $buku->id }}" style="display: none;"><input type="text" name="judul" value="{{ $buku->judul }}"></td>
-                    <td id="form-edit-1{{ $buku->id }}" style="display: none;"><input type="text" name="penulis" value="{{ $buku->penulis }}"></td>
-                    <td id="form-edit-2{{ $buku->id }}" style="display: none;"><input type="text" name="harga" value="{{ $buku->harga }}"></td>
-                    <td id="form-edit-3{{ $buku->id }}" style="display: none;"><input type="date" name="tgl_terbit" value="{{ $buku->tgl_terbit }}"></td>
-                    <td id="form-edit-4{{ $buku->id }}" style="display: none;"><button type="submit" class="btn btn-success">Update</button></td>
-                </form>
-
-                <td id="hps-{{ $buku->id }}">
+                @if(Auth::check() && Auth::user()->level=='admin')
+                <td>
                     <form action="{{ route ('buku.destroy', $buku->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
@@ -64,28 +59,103 @@
                             class="btn btn-danger">Hapus</button>
                     </form>
                 </td>
-
                 <td>
-                    <button class="btn btn-outline-warning" onclick="toggleEditForm('{{ $buku->id }}')">Edit</button>
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{$buku->id}}">
+                        Edit
+                    </button>
                 </td>
+                @endif
             </tr>
             @endforeach
+
             <tr>
                 <td colspan="3"><strong>Total Harga Buku</strong></td>
                 <td colspan="5"><strong>Rp. {{ number_format($total_harga, 2, ',', '.') }}</strong></td>
             </tr>
-                
         </tbody>
     </table>
-                                                                                                                                                                                               
-    <div>
+
+
+    @foreach($data_buku as $buku)
+    <div class="modal fade" id="editModal{{$buku->id}}" tabindex="-1" aria-labelledby="editModalLabel{{$buku->id}}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{{ route('buku.update', $buku->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel{{$buku->id}}">Edit Buku - {{$buku->judul}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="{{ $buku->id }}">
+                        
+                        <div class="mb-3">
+                            <label for="judul" class="form-label">Judul Buku</label>
+                            <input type="text" class="form-control" id="judul" name="judul" value="{{ $buku->judul }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="penulis" class="form-label">Penulis</label>
+                            <input type="text" class="form-control" id="penulis" name="penulis" value="{{ $buku->penulis }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="harga" class="form-label">Harga</label>
+                            <input type="text" class="form-control" id="harga" name="harga" value="{{ $buku->harga }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tgl_terbit" class="form-label">Tanggal Terbit</label>
+                            <input type="date" class="form-control" id="tgl_terbit" name="tgl_terbit" value="{{ \Carbon\Carbon::parse($buku->tgl_terbit)->format('Y-m-d') }}">
+
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="thumbnail" class="form-label">Thumbnail</label>
+                            <input type="file" class="form-control" id="thumbnail" name="thumbnail">
+                            @if($buku->filepath)
+                                <div class="mt-2">
+                                    <small>Current thumbnail:</small>
+                                    <img src="{{ asset($buku->filepath) }}" alt="Current thumbnail" class="mt-2" style="max-height: 100px;">
+                                </div>
+                            @endif
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="gallery" class="form-label">Gallery</label>
+                            <div id="fileinput_wrapper_{{$buku->id}}">
+                                <input type="file" name="gallery[]" class="form-control mb-2">
+                            </div>
+                            <button type="button" class="btn btn-secondary mt-2" onclick="addFileInput('{{$buku->id}}')">
+                                Add More Images
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    <p class="alert alert-info">Jumlah Buku: {{ $jumlah_buku }}</p>
+    <div class="d-flex justify-content-center flex-row">
         {{ $data_buku->links('pagination::bootstrap-5') }}
     </div>
-    <div>
-        <strong>Jumlah Buku: {{ $jumlah_buku }}</strong>
-    </div>
 
-    <script src="/js/toggleEdit.js"></script>
+    <script>
+    function addFileInput(bookId) {
+        const wrapper = document.getElementById(`fileinput_wrapper_${bookId}`);
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.name = 'gallery[]';
+        input.className = 'form-control mb-2';
+        wrapper.appendChild(input);
+    }
+    </script>
 </body>
-
-</html>
+@endsection
