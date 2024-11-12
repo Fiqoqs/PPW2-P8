@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Gallery extends Model
 {
     protected $table = 'galeri';
-    protected $fillable = ['id', 'nama_galeri', 'path', 'foto', 'books_id'];
+    
+    protected $fillable = [
+        'id', 'nama_galeri', 'path', 'foto', 'books_id'
+    ];
 
     public function buku(): BelongsTo
     {
-        return $this->belongsTo(Buku::class);
+        return $this->belongsTo(Buku::class, 'books_id', 'id');
     }
 }
+

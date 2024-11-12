@@ -18,9 +18,10 @@ class Buku extends Model
 
     public function galleries(): HasMany
     {
-        return $this->hasMany(Gallery::class);
+        return $this->hasMany(Gallery::class, 'books_id', 'id');
     }
 }
+
 
 
 

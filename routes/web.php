@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LoginRegisterController;
 use App\Http\Controllers\BukuController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +10,7 @@ Route::middleware(['admin'])->group(function() {Route::get('/buku', [BukuControl
 Route::get( '/buku/create', [BukuController::class, 'create' ])->name('buku.create');
 Route::post('/buku', [BukuController::class, 'store' ])->name('buku.store');
 Route::delete('/buku/{id}', [BukuController::class, 'destroy' ])->name ('buku.destroy');
+Route::delete('/gallery/{id}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 Route::put('/buku/{id}', [BukuController::class, 'update' ])->name ('buku.update');
 Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
 Auth::routes();
