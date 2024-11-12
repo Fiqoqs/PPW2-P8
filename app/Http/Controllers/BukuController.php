@@ -84,7 +84,7 @@ class BukuController extends Controller
                     'nama_galeri' => $fileName,
                     'path'        => '/storage/' . $filePath,
                     'foto'        => $fileName,
-                    'buku_id'     => $buku->id
+                    'books_id'     => $buku->id
                 ]);
             }
         }
@@ -142,7 +142,7 @@ class BukuController extends Controller
                     'nama_galeri' => $fileName,
                     'path'        => '/storage/' . $filePath,
                     'foto'        => $fileName,
-                    'buku_id'     => $buku->id
+                    'books_id'     => $buku->id
                 ]);
             }
         }
