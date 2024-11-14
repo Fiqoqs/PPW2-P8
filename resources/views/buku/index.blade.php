@@ -131,7 +131,13 @@
                                 Add More Images
                             </button>
                         </div>
-                        @if($buku->galleries()->count() > 0)
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+                @if($buku->galleries()->count() > 0)
                         <div class="mb-3">
                             <label class="form-label">Current Gallery Images</label>
                             <div class="row">
@@ -148,12 +154,6 @@
                             </div>
                         </div>
                         @endif
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
