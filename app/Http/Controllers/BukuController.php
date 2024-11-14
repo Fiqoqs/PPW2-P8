@@ -149,4 +149,11 @@ class BukuController extends Controller
 
         return redirect('/buku')->with('pesan', 'Perubahan data buku berhasil disimpan');
     }
+
+    public function galbuku($title) {
+        $bukus = Buku::where('buku_seo', $title)->first();
+        $galeris = $bukus->photos()->orderBy('id', 'desc')->paginate(6);
+        return view('galeri-buku', compact('bukus', 'galeris'));
+    }
+    
 }

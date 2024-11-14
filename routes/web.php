@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BookApiController;
 use App\Http\Controllers\LoginRegisterController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\GalleryController;

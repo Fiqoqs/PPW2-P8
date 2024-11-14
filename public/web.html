@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Buku</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #283c86, #45a247); /* Cool blue to green gradient */
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 2.8rem;
+      margin: 20px 0;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      letter-spacing: 1.5px;
+    }
+
+    .book-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 1300px;
+      gap: 20px;
+    }
+
+    .book-card {
+      background: linear-gradient(135deg, #3a6073, #16222a); /* Darker gradient for the card */
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 280px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #ffffff;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%);
+      transition: transform 0.5s ease;
+    }
+
+    .book-card:hover::before {
+      transform: scale(1.3);
+    }
+
+    .book-card:hover {
+      transform: scale(1.05) rotate(-1deg);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .book-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .no-image {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+      font-style: italic;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .book-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 10px 0;
+      color: #e0f7fa;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .book-author {
+      font-size: 1rem;
+      color: #b2dfdb;
+      margin: 5px 0;
+      font-weight: 500;
+    }
+
+    .book-price {
+      font-size: 1.1rem;
+      color: #ffeb3b;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    .book-date {
+      font-size: 0.9rem;
+      color: #cfd8dc;
+      margin: 5px 0;
+    }
+
+    /* Button Style */
+    .load-more {
+      background-color: #45a247;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .load-more:hover {
+      background-color: #283c86;
+      transform: scale(1.05);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .book-card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Daftar Buku</h1>
+  <div class="book-container" id="bookContainer"></div>
+  <button class="load-more" id="loadMoreBtn">Load More Books</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const bookContainer = document.getElementById('bookContainer');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      let nextPageUrl = 'http://localhost:8000/api/books';
+
+      // Function to fetch data from a specific page
+      function fetchBooks(pageUrl) {
+        fetch(pageUrl)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.data && data.data.data) {
+              const books = data.data.data;
+
+              // Add book cards to the container
+              books.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.classList.add('book-card');
+                
+                bookCard.innerHTML = `
+                  ${book.filepath ? `<img src="${book.filepath}" alt="${book.judul}">` : '<div class="no-image">No image available</div>'}
+                  <div class="book-title">${book.judul}</div>
+                  <div class="book-author">By ${book.penulis}</div>
+                  <div class="book-price">Rp ${book.harga.toLocaleString()}</div>
+                  <div class="book-date">Published: ${new Date(book.tgl_terbit).toLocaleDateString()}</div>
+                `;
+
+                bookContainer.appendChild(bookCard);
+              });
+
+              // Update next page URL or hide Load More button if no more pages
+              nextPageUrl = data.data.next_page_url;
+              if (!nextPageUrl) {
+                loadMoreBtn.style.display = 'none';
+              }
+            } else {
+              loadMoreBtn.style.display = 'none';
+              bookContainer.innerHTML = '<p style="color: white; text-align: center;">Tidak ada data buku tersedia.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+            bookContainer.innerHTML = '<p style="color: white; text-align: center;">Gagal memuat data buku.</p>';
+          });
+      }
+
+      // Load more books on button click
+      loadMoreBtn.addEventListener('click', () => {
+        if (nextPageUrl) {
+          fetchBooks(nextPageUrl);
+        }
+      });
+
+      // Start fetching from the first page
+      fetchBooks(nextPageUrl);
+    });
+  </script>
+</body>
+</html>
